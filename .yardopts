@@ -3,3 +3,5 @@ lib/orka_api_client/models/attr_predicate.rb
 lib/orka_api_client/models/lazy_model.rb
 lib/orka_api_client/client.rb
 lib/**/*.rb
+-
+LICENSE

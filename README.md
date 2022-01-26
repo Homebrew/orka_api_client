@@ -2,7 +2,7 @@
 
 This is a Ruby library for interacting with MacStadium's [Orka](https://www.macstadium.com/orka) API.
 
-⚠️⚠️⚠️ **This gem is largely untested beyond basic read-only operations. API stability is not guaranteed at this time.** ⚠️⚠️⚠️
+⚠️⚠️ **This gem is largely untested beyond read-only operations. API stability is not yet guaranteed.** ⚠️⚠️
 
 ## Installation
 

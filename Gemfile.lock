@@ -1,0 +1,101 @@
+GIT
+  remote: https://github.com/AaronC81/sord
+  revision: 25c77951f8d20f73ad336e5d0eb13d0eaad14200
+  ref: 25c77951f8d20f73ad336e5d0eb13d0eaad14200
+  specs:
+    sord (3.0.1)
+      commander (~> 4.5)
+      parlour (~> 5.0)
+      sorbet-runtime
+      yard
+
+PATH
+  remote: .
+  specs:
+    orka_api_client (0.1.0)
+      faraday (~> 2.0)
+      faraday-multipart (~> 1.0)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    ast (2.4.2)
+    commander (4.6.0)
+      highline (~> 2.0.0)
+    diff-lcs (1.5.0)
+    faraday (2.1.0)
+      faraday-net_http (~> 2.0)
+      ruby2_keywords (>= 0.0.4)
+    faraday-multipart (1.0.3)
+      multipart-post (>= 1.2, < 3)
+    faraday-net_http (2.0.1)
+    highline (2.0.3)
+    multipart-post (2.1.1)
+    parallel (1.21.0)
+    parlour (5.0.0)
+      commander (~> 4.5)
+      parser
+      rainbow (~> 3.0)
+      sorbet-runtime (>= 0.5)
+    parser (3.1.0.0)
+      ast (~> 2.4.1)
+    rainbow (3.1.1)
+    rake (13.0.6)
+    regexp_parser (2.2.0)
+    rexml (3.2.5)
+    rspec (3.10.0)
+      rspec-core (~> 3.10.0)
+      rspec-expectations (~> 3.10.0)
+      rspec-mocks (~> 3.10.0)
+    rspec-core (3.10.1)
+      rspec-support (~> 3.10.0)
+    rspec-expectations (3.10.2)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.10.0)
+    rspec-mocks (3.10.2)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.10.0)
+    rspec-support (3.10.3)
+    rubocop (1.25.0)
+      parallel (~> 1.10)
+      parser (>= 3.1.0.0)
+      rainbow (>= 2.2.2, < 4.0)
+      regexp_parser (>= 1.8, < 3.0)
+      rexml
+      rubocop-ast (>= 1.15.1, < 2.0)
+      ruby-progressbar (~> 1.7)
+      unicode-display_width (>= 1.4.0, < 3.0)
+    rubocop-ast (1.15.1)
+      parser (>= 3.0.1.1)
+    rubocop-performance (1.13.2)
+      rubocop (>= 1.7.0, < 2.0)
+      rubocop-ast (>= 0.4.0)
+    rubocop-rake (0.6.0)
+      rubocop (~> 1.0)
+    rubocop-rspec (2.8.0)
+      rubocop (~> 1.19)
+    ruby-progressbar (1.11.0)
+    ruby2_keywords (0.0.5)
+    sorbet-runtime (0.5.9566)
+    unicode-display_width (2.1.0)
+    webrick (1.7.0)
+    yard (0.9.27)
+      webrick (~> 1.7.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  orka_api_client!
+  parlour
+  rake
+  rspec
+  rubocop
+  rubocop-performance
+  rubocop-rake
+  rubocop-rspec
+  sord!
+  yard
+
+BUNDLED WITH
+   2.2.32

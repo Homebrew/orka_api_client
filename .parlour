@@ -1,0 +1,12 @@
+parser: false
+
+requires:
+  - sord
+
+excluded_modules:
+  - OrkaAPI::AuthMiddleware
+
+plugins:
+  Sord::ParlourPlugin:
+    exclude_untyped: yes
+    rbi: yes

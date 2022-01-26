@@ -10,6 +10,7 @@ Gem::Specification.new do |spec|
 
   spec.summary = "Ruby library for interfacing with the MacStadium Orka API."
   spec.homepage = "https://github.com/Homebrew/orka_api_client"
+  spec.license = "BSD-2-Clause"
   spec.required_ruby_version = ">= 2.6.0"
 
   spec.metadata["homepage_uri"] = spec.homepage

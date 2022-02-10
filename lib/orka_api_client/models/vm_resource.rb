@@ -170,6 +170,8 @@ module OrkaAPI
             orka_auth_type: auth_type,
           }
         end
+      rescue Faraday::ServerError => e
+        raise unless e.response[:body]&.include?("No VMs with that name are currently deployed")
       end
 
       # Remove all VM instances and the VM configuration.

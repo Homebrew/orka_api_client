@@ -110,7 +110,7 @@ module OrkaAPI
       def deploy(node: nil, replicas: nil, reserved_ports: nil, iso_install: nil,
                  iso_image: nil, attach_disk: nil, attached_disk: nil, vnc_console: nil,
                  vm_metadata: nil, system_serial: nil, gpu_passthrough: nil)
-        VMResource.lazy_prepare(@name, conn: @conn).deploy(
+        VMResource.lazy_prepare(name: @name, conn: @conn).deploy(
           node:            node,
           replicas:        replicas,
           reserved_ports:  reserved_ports,
@@ -133,7 +133,7 @@ module OrkaAPI
       #
       # @return [void]
       def purge
-        VMResource.lazy_prepare(@name, conn: @conn).purge
+        VMResource.lazy_prepare(name: @name, conn: @conn).purge
       end
 
       # Delete the VM configuration state. Now when you deploy the VM configuration it will use the base image to

@@ -15,6 +15,9 @@ module OrkaAPI
         url:     base_url,
         headers: {
           "User-Agent" => "HomebrewOrkaClient/#{Client::VERSION}",
+        },
+        request: {
+          timeout: 120,
         }
       ) do |f|
         f.request :orka_auth, token: token, license_key: license_key

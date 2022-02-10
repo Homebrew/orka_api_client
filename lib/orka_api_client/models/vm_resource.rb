@@ -32,8 +32,8 @@ module OrkaAPI
       #   {#deployed?} is +true+.
       lazy_attr :base_image
 
-      # @return [String, nil]
-      lazy_attr :image
+      # @return [VMConfiguration, nil] The matching VM configuration object. This is +nil+ if {#deployed?} is +true+.
+      lazy_attr :config
 
       # @return [Boolean, nil] True if IO boost is enabled, specified by the associated VM configuration. This is
       #   +nil+ if {#deployed?} is +true+.
@@ -343,7 +343,7 @@ module OrkaAPI
           @cpu = hash["cpu"]
           @vcpu = hash["vcpu"]
           @base_image = Image.lazy_prepare(name: hash["base_image"], conn: @conn)
-          @image = hash["image"] # TODO: rename this? provide an object?
+          @config = VMConfiguration.lazy_prepare(name: hash["image"], conn: @conn)
           @io_boost = hash["io_boost"]
           @use_saved_state = hash["use_saved_state"]
           @gpu_passthrough = hash["gpu_passthrough"]

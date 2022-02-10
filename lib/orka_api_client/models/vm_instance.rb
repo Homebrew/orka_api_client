@@ -51,8 +51,8 @@ module OrkaAPI
       # @return [Image] The base image the VM was deployed from.
       attr_reader :base_image
 
-      # @return [String]
-      attr_reader :image
+      # @return [VMConfiguration] The VM configuration object this instance is based on.
+      attr_reader :config
 
       # @return [String]
       attr_reader :configuration_template
@@ -450,7 +450,7 @@ module OrkaAPI
         @vcpu = hash["vcpu"]
         @ram = hash["RAM"]
         @base_image = Image.lazy_prepare(name: hash["base_image"], conn: @conn)
-        @image = hash["image"] # TODO: rename this? provide an object?
+        @config = VMConfiguration.lazy_prepare(name: hash["image"], conn: @conn)
         @configuration_template = hash["configuration_template"]
         @io_boost = hash["io_boost"]
         @use_saved_state = hash["use_saved_state"]

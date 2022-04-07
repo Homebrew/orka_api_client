@@ -2,6 +2,7 @@
 
 require_relative "lazy_model"
 require_relative "vm_instance"
+require_relative "vm_deployment_result"
 
 module OrkaAPI
   module Models
@@ -121,7 +122,7 @@ module OrkaAPI
       #   passthrough setting specified in the VM configuration. When enabled, +vnc_console+ is automatically
       #   disabled. GPU passthrough is an experimental feature. GPU passthrough must first be enabled in your
       #   cluster.
-      # @return [void]
+      # @return [VMDeploymentResult] Details of the just-deployed VM.
       def deploy(node: nil, replicas: nil, reserved_ports: nil, iso_install: nil,
                  iso_image: nil, attach_disk: nil, attached_disk: nil, vnc_console: nil,
                  vm_metadata: nil, system_serial: nil, gpu_passthrough: nil)
@@ -140,11 +141,12 @@ module OrkaAPI
           system_serial:   system_serial,
           gpu_passthrough: gpu_passthrough,
         }.compact
-        @conn.post("resources/vm/deploy", body) do |r|
+        response = @conn.post("resources/vm/deploy", body) do |r|
           r.options.context = {
             orka_auth_type: :token,
           }
         end
+        VMDeploymentResult.new(response.body, conn: @conn, admin: @admin)
       end
 
       # Removes all VM instances.

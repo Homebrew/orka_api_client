@@ -106,7 +106,7 @@ module OrkaAPI
       #   passthrough setting specified in the VM configuration. When enabled, +vnc_console+ is automatically
       #   disabled. GPU passthrough is an experimental feature. GPU passthrough must first be enabled in your
       #   cluster.
-      # @return [void]
+      # @return [VMDeploymentResult] Details of the just-deployed VM.
       def deploy(node: nil, replicas: nil, reserved_ports: nil, iso_install: nil,
                  iso_image: nil, attach_disk: nil, attached_disk: nil, vnc_console: nil,
                  vm_metadata: nil, system_serial: nil, gpu_passthrough: nil)

@@ -16,7 +16,7 @@ module OrkaAPI
       # @return [DateTime] The time this image was last modified.
       lazy_attr :modification_time
 
-      # @return [DateTime] The time this image was first created.
+      # @return [DateTime, nil] The time this image was first created, if available.
       lazy_attr :creation_time
 
       # @return [String]
@@ -171,7 +171,11 @@ module OrkaAPI
         @name = hash["image"]
         @size = hash["image_size"]
         @modification_time = DateTime.iso8601(hash["modified"])
-        @creation_time = DateTime.iso8601(hash["date_added"])
+        @creation_time = if hash["date_added"] == "N/A"
+          nil
+        else
+          DateTime.iso8601(hash["date_added"])
+        end
         @owner = hash["owner"]
       end
     end

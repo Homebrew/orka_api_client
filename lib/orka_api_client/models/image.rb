@@ -87,7 +87,7 @@ module OrkaAPI
             orka_auth_type: :token,
           }
         end
-        Image.lazy_prepare(new_name, conn: @conn)
+        Image.lazy_prepare(name: new_name, conn: @conn)
       end
 
       # Delete this image from the local Orka storage.

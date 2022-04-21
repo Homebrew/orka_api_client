@@ -116,7 +116,7 @@ module OrkaAPI
       end
 
       group = "$ungrouped" if group.nil?
-      Models::User.new(conn: @conn, email: group_user, group: group)
+      Models::User.new(conn: @conn, email: email, group: group)
     end
 
     # Modify the email address or password of the current user. This operation is intended for regular Orka users.

@@ -101,14 +101,24 @@ module OrkaAPI
       private
 
       def lazy_initialize
-        groups = @conn.get("users") do |r|
+        body = @conn.get("users") do |r|
           r.options.context = {
             orka_auth_type: :license,
           }
-        end.body["user_groups"]
-        group = groups.find { |_, group_users| group_users.include?(@email) }&.first
+        end.body
+        groups = body["user_groups"]
 
-        raise ResourceNotFoundError, "No user found matching \"#{@email}\"." if group.nil?
+        group = if groups.nil?
+          user_list = body["user_list"]
+          raise ResourceNotFoundError, "No user found matching \"#{@email}\"." unless user_list.include?(@email)
+
+          "$ungrouped"
+        else
+          group = groups.find { |_, group_users| group_users.include?(@email) }&.first
+          raise ResourceNotFoundError, "No user found matching \"#{@email}\"." if group.nil?
+
+          group
+        end
 
         @group = if group == "$ungrouped"
           nil

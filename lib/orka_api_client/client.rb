@@ -64,18 +64,30 @@ module OrkaAPI
     def users
       Models::Enumerator.new do
         users = []
-        groups = @conn.get("users") do |r|
+        body = @conn.get("users") do |r|
           r.options.context = {
             orka_auth_type: :license,
           }
-        end.body["user_groups"]
-        groups.each do |group, group_users|
-          group_users.each do |group_user|
+        end.body
+        groups = body["user_groups"]
+        if groups.nil?
+          user_list = body["user_list"]
+          user_list.each do |user|
             users << Models::User.new(
               conn:  @conn,
-              email: group_user,
-              group: group,
+              email: user,
+              group: "$ungrouped",
             )
+          end
+        else
+          groups.each do |group, group_users|
+            group_users.each do |group_user|
+              users << Models::User.new(
+                conn:  @conn,
+                email: group_user,
+                group: group,
+              )
+            end
           end
         end
         users

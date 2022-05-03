@@ -150,7 +150,7 @@ module OrkaAPI
       # @return [void]
       def dedicate_to_group(group)
         body = [@name].compact
-        @conn.post("resources/node/groups/#{@group || "$ungrouped"}", body) do |r|
+        @conn.post("resources/node/groups/#{group || "$ungrouped"}", body) do |r|
           r.options.context = {
             orka_auth_type: [:license, :token],
           }

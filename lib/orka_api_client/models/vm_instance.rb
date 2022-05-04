@@ -452,6 +452,7 @@ module OrkaAPI
         @base_image = Image.lazy_prepare(name: hash["base_image"], conn: @conn)
         @config = VMConfiguration.lazy_prepare(name: hash["image"], conn: @conn)
         @configuration_template = hash["configuration_template"]
+        @status = hash["vm_status"]
         @io_boost = hash["io_boost"]
         @use_saved_state = hash["use_saved_state"]
         @reserved_ports = hash["reserved_ports"].map do |mapping|

@@ -27,6 +27,9 @@ module OrkaAPI
       # @return [Integer] The number of CPU cores to allocate to deployed VMs of this configuration.
       lazy_attr :cpu_cores
 
+      # @return [Integer] The number of VCPUs to allocate to deployed VMs of this configuration.
+      lazy_attr :vcpu_count
+
       # @return [ISO] The ISO to attach to deployed VMs of this configuration.
       lazy_attr :iso_image
 
@@ -173,6 +176,7 @@ module OrkaAPI
         @owner = User.lazy_prepare(email: hash["owner"], conn: @conn)
         @base_image = Image.lazy_prepare(name: hash["orka_base_image"], conn: @conn)
         @cpu_cores = hash["orka_cpu_core"]
+        @vcpu_count = hash["vcpu_count"]
         @iso_image = if hash["iso_image"] == "None"
           nil
         else

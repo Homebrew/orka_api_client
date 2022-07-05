@@ -40,10 +40,10 @@ module OrkaAPI
       attr_reader :ssh_port
 
       # @return [Integer] The number of CPU cores allocated to the VM.
-      attr_reader :cpu
+      attr_reader :cpu_cores
 
       # @return [Integer] The number of vCPUs allocated to the VM.
-      attr_reader :vcpu
+      attr_reader :vcpu_count
 
       # @return [String] The amount of RAM allocated to the VM.
       attr_reader :ram
@@ -446,8 +446,8 @@ module OrkaAPI
         @vnc_port = hash["vnc_port"].to_i
         @screen_sharing_port = hash["screen_sharing_port"].to_i
         @ssh_port = hash["ssh_port"].to_i
-        @cpu = hash["cpu"]
-        @vcpu = hash["vcpu"]
+        @cpu_cores = hash["cpu"]
+        @vcpu_count = hash["vcpu"]
         @ram = hash["RAM"]
         @base_image = Image.lazy_prepare(name: hash["base_image"], conn: @conn)
         @config = VMConfiguration.lazy_prepare(name: hash["image"], conn: @conn)

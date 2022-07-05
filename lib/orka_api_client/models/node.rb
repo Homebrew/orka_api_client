@@ -22,16 +22,16 @@ module OrkaAPI
       lazy_attr :host_ip
 
       # @return [Integer] The number of free CPU cores on this node.
-      lazy_attr :available_cpu
+      lazy_attr :available_cpu_cores
 
       # @return [Integer] The total number of CPU cores on this node that are allocatable to VMs.
-      lazy_attr :allocatable_cpu
+      lazy_attr :allocatable_cpu_cores
 
       # @return [String] The amount of free RAM on this node.
       lazy_attr :available_memory
 
       # @return [Integer] The total number of CPU cores on this node.
-      lazy_attr :total_cpu
+      lazy_attr :total_cpu_cores
 
       # @return [String] The total amount of RAM on this node.
       lazy_attr :total_memory
@@ -195,10 +195,10 @@ module OrkaAPI
         @host_name = hash["host_name"]
         @address = hash["address"]
         @host_ip = hash["hostIP"]
-        @available_cpu = hash["available_cpu"]
-        @allocatable_cpu = hash["allocatable_cpu"]
+        @available_cpu_cores = hash["available_cpu"]
+        @allocatable_cpu_cores = hash["allocatable_cpu"]
         @available_memory = hash["available_memory"]
-        @total_cpu = hash["total_cpu"]
+        @total_cpu_cores = hash["total_cpu"]
         @total_memory = hash["total_memory"]
         @state = hash["state"]
         @orka_group = hash["orka_group"]

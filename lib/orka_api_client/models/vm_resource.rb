@@ -23,11 +23,11 @@ module OrkaAPI
 
       # @return [Integer, nil] The number of CPU cores to use, specified by the associated VM configuration. This is
       #   +nil+ if {#deployed?} is +true+.
-      lazy_attr :cpu
+      lazy_attr :cpu_cores
 
       # @return [Integer, nil] The number of vCPUs to use, specified by the associated VM configuration. This is
       #   +nil+ if {#deployed?} is +true+.
-      lazy_attr :vcpu
+      lazy_attr :vcpu_count
 
       # @return [Image, nil] The base image to use, specified by the associated VM configuration. This is +nil+ if
       #   {#deployed?} is +true+.
@@ -344,8 +344,8 @@ module OrkaAPI
         else
           @instances = []
           @owner = User.lazy_prepare(email: hash["owner"], conn: @conn)
-          @cpu = hash["cpu"]
-          @vcpu = hash["vcpu"]
+          @cpu_cores = hash["cpu"]
+          @vcpu_count = hash["vcpu"]
           @base_image = Image.lazy_prepare(name: hash["base_image"], conn: @conn)
           @config = VMConfiguration.lazy_prepare(name: hash["image"], conn: @conn)
           @io_boost = hash["io_boost"]

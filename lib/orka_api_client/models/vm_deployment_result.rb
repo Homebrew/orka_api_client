@@ -12,10 +12,10 @@ module OrkaAPI
       attr_reader :ram
 
       # @return [Integer] The number of vCPUs allocated to the VM.
-      attr_reader :vcpu
+      attr_reader :vcpu_count
 
       # @return [Integer] The number of host CPU cores allocated to the VM.
-      attr_reader :cpu
+      attr_reader :cpu_cores
 
       # @return [String] The IP of the VM.
       attr_reader :ip
@@ -46,8 +46,8 @@ module OrkaAPI
       # @param [Connection] conn
       def initialize(hash, conn:, admin: false)
         @ram = hash["ram"]
-        @vcpu = hash["vcpu"].to_i
-        @cpu = hash["host_cpu"].to_i
+        @vcpu_count = hash["vcpu"].to_i
+        @cpu_cores = hash["host_cpu"].to_i
         @ip = hash["ip"]
         @ssh_port = hash["ssh_port"].to_i
         @screen_sharing_port = hash["screen_share_port"].to_i

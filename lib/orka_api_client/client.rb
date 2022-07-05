@@ -201,7 +201,7 @@ module OrkaAPI
       Models::Enumerator.new do
         url = "resources/vm/list"
         url += "/#{user}" unless user.nil?
-        resources = @conn.get(url) do |r|
+        resources = @conn.get(url, { expand: nil }) do |r|
           auth_type = [:token]
           auth_type << :license unless user.nil?
           r.options.context = {
@@ -274,22 +274,33 @@ module OrkaAPI
     # @param [Integer] cpu_cores The number of CPU cores to dedicate for the VM. Must be 3, 4, 6, 8, 12, or 24.
     # @param [Integer] vcpu_count The number of vCPUs for the VM. Must equal the number of CPUs, when CPU is less
     #   than or equal to 3. Otherwise, must equal half of or exactly the number of CPUs specified.
-    # @param [Models::ISO, String] iso_image An ISO to attach to the VM on deployment.
-    # @param [Models::Image, String] attached_disk An additional storage disk to attach to the VM on deployment.
+    # @param [Models::ISO, String] iso_image An ISO to attach to the VM on deployment. The option is supported for
+    #   VMs deployed on Intel nodes only.
+    # @param [Models::Image, String] attached_disk An additional storage disk to attach to the VM on deployment. The
+    #   option is supported for VMs deployed on Intel nodes only.
     # @param [Boolean] vnc_console By default, +true+. Enables or disables VNC for the VM configuration. You can
-    #   override on deployment of specific VMs.
-    # @param [String] system_serial Assign an owned macOS system serial number to the VM configuration.
+    #   override on deployment of specific VMs. The option is supported for VMs deployed on Intel nodes only.
+    # @param [String] system_serial Assign an owned macOS system serial number to the VM configuration. The option is
+    #   supported for VMs deployed on Intel nodes only.
     # @param [Boolean] io_boost By default, +false+ for VM configurations created before Orka 1.5. Default value for
     #   VM configurations created with Orka 1.5 or later depends on the cluster default. Enables or disables IO
-    #   performance improvements for the VM configuration.
+    #   performance improvements for the VM configuration. The option is supported for VMs deployed on Intel nodes
+    #   only.
     # @param [Boolean] gpu_passthrough Enables or disables GPU passthrough for the VM. When enabled, +vnc_console+ is
-    #   automatically disabled. GPU passthrough is an experimental feature. GPU passthrough must first be enabled in
-    #   your cluster.
+    #   automatically disabled. The option is supported for VMs deployed on Intel nodes only. GPU passthrough is an
+    #   experimental feature. GPU passthrough must first be enabled in your cluster.
+    # @param [String] tag When specified, the VM is preferred to be deployed to a node marked with this tag.
+    # @param [Boolean] tag_required By default, +false+. When set to +true+, the VM is required to be deployed to a
+    #   node marked with this tag.
+    # @param [Symbol] scheduler Possible values are +:default+ and +:most-allocated+. By default, +:default+. When
+    #   set to +:most-allocated+ VMs deployed from the VM configuration will be scheduled to nodes having most of
+    #   their resources allocated. +:default+ keeps used vs free resources balanced between the nodes.
     # @return [Models::VMConfiguration] The lazily-loaded VM configuration.
     def create_vm_configuraton(name,
                                base_image:, snapshot_image:, cpu_cores:, vcpu_count:,
                                iso_image: nil, attached_disk: nil, vnc_console: nil,
-                               system_serial: nil, io_boost: nil, gpu_passthrough: nil)
+                               system_serial: nil, io_boost: nil, gpu_passthrough: nil,
+                               tag: nil, tag_required: nil, scheduler: nil)
       body = {
         orka_vm_name:    name,
         orka_base_image: base_image.is_a?(Models::Image) ? base_image.name : base_image,
@@ -302,6 +313,9 @@ module OrkaAPI
         system_serial:   system_serial,
         io_boost:        io_boost,
         gpu_passthrough: gpu_passthrough,
+        tag:             tag,
+        tag_required:    tag_required,
+        scheduler:       scheduler.to_s,
       }.compact
       @conn.post("resources/vm/create", body) do |r|
         r.options.context = {
@@ -423,6 +437,8 @@ module OrkaAPI
     #
     # @macro auth_token
     #
+    # @note This request is supported for Intel images only. Intel images have +.img+ extension.
+    #
     # @param [String] name The name of this new image.
     # @param [String] size The size of this new image (in K, M, G, or T), for example +"10G"+.
     # @return [Models::Image] The new lazily-loaded image.
@@ -442,6 +458,8 @@ module OrkaAPI
     # Upload an image to the Orka environment.
     #
     # @macro auth_token
+    #
+    # @note This request is supported for Intel images only. Intel images have +.img+ extension.
     #
     # @param [String, IO] file The string file path or an open IO object to the image to upload.
     # @param [String] name The name to give to this image. Defaults to the local filename.

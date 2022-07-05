@@ -7,6 +7,8 @@ module OrkaAPI
     # An +.iso+ disk image used exclusively for the installation of macOS on a virtual machine. You must attach the
     # ISO to the VM during deployment. After the installation is complete and the VM has booted successfully, you
     # need to restart the VM to detach the ISO.
+    #
+    # @note All ISO requests are supported for Intel nodes only.
     class ISO < LazyModel
       # @return [String] The name of this ISO.
       attr_reader :name

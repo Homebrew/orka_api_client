@@ -75,6 +75,8 @@ module OrkaAPI
       #
       # @macro auth_token
       #
+      # @note This request is supported for Intel images only. Intel images have +.img+ extension.
+      #
       # @param [String] new_name The name for the copy of this image.
       # @return [Image] The lazily-loaded image copy.
       def copy(new_name)
@@ -112,6 +114,8 @@ module OrkaAPI
       #
       # @macro auth_token
       #
+      # @note This request is supported for Intel images only. Intel images have +.img+ extension.
+      #
       # @param [String, Pathname, IO] to An open IO, or a String/Pathname file path to the file or directory where
       #   you want the image to be written.
       # @return [void]
@@ -140,6 +144,8 @@ module OrkaAPI
       # integrity for a downloaded or uploaded image.
       #
       # @macro auth_token
+      #
+      # @note This request is supported for Intel images only. Intel images have +.img+ extension.
       #
       # @return [String, nil] The MD5 checksum of the image, or nil if the calculation is in progress and has not
       #   completed.

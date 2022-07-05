@@ -27,6 +27,12 @@ module OrkaAPI
       # @return [Integer] The total number of CPU cores on this node that are allocatable to VMs.
       lazy_attr :allocatable_cpu_cores
 
+      # @return [Integer] The number of free GPUs on this node.
+      lazy_attr :available_gpu_count
+
+      # @return [Integer] The total number of GPUs on this node that are allocatable to VMs.
+      lazy_attr :allocatable_gpu_count
+
       # @return [String] The amount of free RAM on this node.
       lazy_attr :available_memory
 
@@ -41,6 +47,9 @@ module OrkaAPI
 
       # @return [String, nil] The user group this node is dedicated to, if any.
       lazy_attr :orka_group
+
+      # @return [Array<String>] The list of tags this node has been assigned.
+      lazy_attr :tags
 
       # @api private
       # @param [String] name
@@ -110,6 +119,8 @@ module OrkaAPI
       #
       # @macro auth_token_and_license
       #
+      # @note This request is supported for Intel nodes only.
+      #
       # @return [void]
       def enable_sandbox
         body = {
@@ -125,6 +136,8 @@ module OrkaAPI
       # Remove the sandbox tag from this node. This re-enables deployment management with the Orka CLI.
       #
       # @macro auth_token_and_license
+      #
+      # @note This request is supported for Intel nodes only.
       #
       # @return [void]
       def disable_sandbox
@@ -169,6 +182,43 @@ module OrkaAPI
         dedicate_to_group(nil)
       end
 
+      # Mark a node with a custom tag. This allows when deploying a VM to target nodes having this custom tag.
+      #
+      # @macro auth_token_and_license
+      #
+      # @param [String] tag_name The name of the tag.
+      # @return [void]
+      def tag(tag_name)
+        body = {
+          orka_node_name: @name,
+        }.compact
+        @conn.post("resources/node/tag/#{tag_name}", body) do |r|
+          r.options.context = {
+            orka_auth_type: [:license, :token],
+          }
+        end
+        @tags << tag_name
+      end
+
+      # Remove a custom tag from a certain node.
+      #
+      # @macro auth_token_and_license
+      #
+      # @param [String] tag_name The name of the tag.
+      # @return [void]
+      def untag(tag_name)
+        @conn.delete("resources/node/tag/#{tag_name}") do |r|
+          r.body = {
+            orka_node_name: @name,
+          }.compact
+
+          r.options.context = {
+            orka_auth_type: [:license, :token],
+          }
+        end
+        @tags.delete(tag_name)
+      end
+
       private
 
       def lazy_initialize
@@ -197,11 +247,22 @@ module OrkaAPI
         @host_ip = hash["hostIP"]
         @available_cpu_cores = hash["available_cpu"]
         @allocatable_cpu_cores = hash["allocatable_cpu"]
+        @available_gpu_count = if hash["available_gpu"] == "N/A"
+          0
+        else
+          hash["available_gpu"].to_i
+        end
+        @allocatable_gpu_count = if hash["allocatable_gpu"] == "N/A"
+          0
+        else
+          hash["allocatable_gpu"].to_i
+        end
         @available_memory = hash["available_memory"]
         @total_cpu_cores = hash["total_cpu"]
         @total_memory = hash["total_memory"]
         @state = hash["state"]
         @orka_group = hash["orka_group"]
+        @tags = hash["orka_tags"]
       end
     end
   end

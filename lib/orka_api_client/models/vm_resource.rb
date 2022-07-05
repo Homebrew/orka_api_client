@@ -97,35 +97,46 @@ module OrkaAPI
       # @param [Node, String] node The node on which to deploy the VM. The node must have sufficient CPU and memory
       #   to accommodate the VM.
       # @param [Integer] replicas The scale at which to deploy the VM configuration. If not specified, defaults to
-      #   +1+ (non-scaled).
+      #   +1+ (non-scaled). The option is supported for VMs deployed on Intel nodes only.
       # @param [Array<PortMapping>] reserved_ports One or more port mappings that enable additional ports on your VM.
-      # @param [Boolean] iso_install Set to +true+ if you want to use an ISO.
+      # @param [Boolean] iso_install Set to +true+ if you want to use an ISO. The option is supported for VMs
+      #   deployed on Intel nodes only.
       # @param [Models::ISO, String] iso_image An ISO to attach to the VM during deployment. If already set in the
       #   respective VM configuration and not set here, Orka applies the setting from the VM configuration. You can
-      #   also use this field to override any ISO specified in the VM configuration.
-      # @param [Boolean] attach_disk Set to +true+ if you want to attach additional storage during deployment.
+      #   also use this field to override any ISO specified in the VM configuration. The option is supported for VMs
+      #   deployed on Intel nodes only.
+      # @param [Boolean] attach_disk Set to +true+ if you want to attach additional storage during deployment. The
+      #   option is supported for VMs deployed on Intel nodes only.
       # @param [Models::Image, String] attached_disk An additional storage disk to attach to the VM during
       #   deployment. If already set in the respective VM configuration and not set here, Orka applies the setting
       #   from the VM configuration. You can also use this field to override any storage specified in the VM
-      #   configuration.
+      #   configuration. The option is supported for VMs deployed on Intel nodes only.
       # @param [Boolean] vnc_console Enables or disables VNC for the VM. If not set in the VM configuration or here,
       #   defaults to +true+. If already set in the respective VM configuration and not set here, Orka applies the
       #   setting from the VM configuration. You can also use this field to override the VNC setting specified in the
-      #   VM configuration.
+      #   VM configuration. The option is supported for VMs deployed on Intel nodes only.
       # @param [Hash{String => String}] vm_metadata Inject custom metadata to the VM. If not set, only the built-in
-      #   metadata is injected into the VM.
+      #   metadata is injected into the VM. The option is supported for VMs deployed on Intel nodes only.
       # @param [String] system_serial Assign an owned macOS system serial number to the VM. If already set in the
-      #   respective VM configuration and not set here, Orka applies the setting from the VM configuration.
+      #   respective VM configuration and not set here, Orka applies the setting from the VM configuration. The
+      #   option is supported for VMs deployed on Intel nodes only.
       # @param [Boolean] gpu_passthrough Enables or disables GPU passthrough for the VM. If not set in the VM
       #   configuration or here, defaults to +false+. If already set in the respective VM configuration and not set
       #   here, Orka applies the setting from the VM configuration. You can also use this field to override the GPU
       #   passthrough setting specified in the VM configuration. When enabled, +vnc_console+ is automatically
-      #   disabled. GPU passthrough is an experimental feature. GPU passthrough must first be enabled in your
-      #   cluster.
+      #   disabled. The option is supported for VMs deployed on Intel nodes only. GPU passthrough is an experimental
+      #   feature. GPU passthrough must first be enabled in your cluster.
+      # @param [String] tag When specified, the VM is preferred to be deployed to a node marked with this tag.
+      # @param [Boolean] tag_required By default, +false+. When set to +true+, the VM is required to be deployed to a
+      #   node marked with this tag.
+      # @param [Symbol] scheduler Possible values are +:default+ and +:most-allocated+. By default, +:default+. When
+      #   set to +:most-allocated+ the deployed VM will be scheduled to nodes having most of their resources
+      #   allocated. +:default+ keeps used vs free resources balanced between the nodes.
       # @return [VMDeploymentResult] Details of the just-deployed VM.
       def deploy(node: nil, replicas: nil, reserved_ports: nil, iso_install: nil,
                  iso_image: nil, attach_disk: nil, attached_disk: nil, vnc_console: nil,
-                 vm_metadata: nil, system_serial: nil, gpu_passthrough: nil)
+                 vm_metadata: nil, system_serial: nil, gpu_passthrough: nil,
+                 tag: nil, tag_required: nil, scheduler: nil)
         vm_metadata = { items: vm_metadata.map { |k, v| { key: k, value: v } } } unless vm_metadata.nil?
         body = {
           orka_vm_name:    @name,
@@ -140,6 +151,9 @@ module OrkaAPI
           vm_metadata:     vm_metadata,
           system_serial:   system_serial,
           gpu_passthrough: gpu_passthrough,
+          tag:             tag,
+          tag_required:    tag_required,
+          scheduler:       scheduler.to_s,
         }.compact
         response = @conn.post("resources/vm/deploy", body) do |r|
           r.options.context = {
@@ -205,6 +219,8 @@ module OrkaAPI
       #
       # @macro vm_resource_state_note
       #
+      # @note This request is supported for VMs deployed on Intel nodes only.
+      #
       # @param [Node, String] node All deployments of this VM located on this node will be started.
       # @return [void]
       def start_all_on_node(node)
@@ -226,6 +242,8 @@ module OrkaAPI
       # @macro auth_token
       #
       # @macro vm_resource_state_note
+      #
+      # @note This request is supported for VMs deployed on Intel nodes only.
       #
       # @param [Node, String] node All deployments of this VM located on this node will be stopped.
       # @return [void]
@@ -249,6 +267,8 @@ module OrkaAPI
       #
       # @macro vm_resource_state_note
       #
+      # @note This request is supported for VMs deployed on Intel nodes only.
+      #
       # @param [Node, String] node All deployments of this VM located on this node will be suspended.
       # @return [void]
       def suspend_all_on_node(node)
@@ -270,6 +290,8 @@ module OrkaAPI
       # @macro auth_token
       #
       # @macro vm_resource_state_note
+      #
+      # @note This request is supported for VMs deployed on Intel nodes only.
       #
       # @param [Node, String] node All deployments of this VM located on this node will be resumed.
       # @return [void]
@@ -293,6 +315,8 @@ module OrkaAPI
       # @macro auth_token
       #
       # @macro vm_resource_state_note
+      #
+      # @note This request is supported for VMs deployed on Intel nodes only.
       #
       # @param [Node, String] node All deployments of this VM located on this node will be reverted.
       # @return [void]

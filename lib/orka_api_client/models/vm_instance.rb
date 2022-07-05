@@ -45,6 +45,9 @@ module OrkaAPI
       # @return [Integer] The number of vCPUs allocated to the VM.
       attr_reader :vcpu_count
 
+      # @return [Integer] The number of GPUs allocated to the VM.
+      attr_reader :gpu_count
+
       # @return [String] The amount of RAM allocated to the VM.
       attr_reader :ram
 
@@ -71,6 +74,12 @@ module OrkaAPI
 
       # @return [DateTime] The time when this VM was deployed.
       attr_reader :creation_time
+
+      # @return [String, nil] The tag that was requested this VM be deployed to, if any.
+      attr_reader :tag
+
+      # @return [Boolean] Whether it was mandatory that this VM was deployed to the requested tag.
+      attr_predicate :tag_required
 
       # @api private
       # @param [Hash] hash
@@ -115,6 +124,8 @@ module OrkaAPI
       #
       # @macro vm_instance_state_note
       #
+      # @note This request is supported for VMs deployed on Intel nodes only.
+      #
       # @return [void]
       def start
         body = {
@@ -132,6 +143,8 @@ module OrkaAPI
       # @macro auth_token
       #
       # @macro vm_instance_state_note
+      #
+      # @note This request is supported for VMs deployed on Intel nodes only.
       #
       # @return [void]
       def stop
@@ -151,6 +164,8 @@ module OrkaAPI
       #
       # @macro vm_instance_state_note
       #
+      # @note This request is supported for VMs deployed on Intel nodes only.
+      #
       # @return [void]
       def suspend
         body = {
@@ -168,6 +183,8 @@ module OrkaAPI
       # @macro auth_token
       #
       # @macro vm_instance_state_note
+      #
+      # @note This request is supported for VMs deployed on Intel nodes only.
       #
       # @return [void]
       def resume
@@ -187,6 +204,8 @@ module OrkaAPI
       #
       # @macro vm_instance_state_note
       #
+      # @note This request is supported for VMs deployed on Intel nodes only.
+      #
       # @return [void]
       def revert
         body = {
@@ -204,6 +223,8 @@ module OrkaAPI
       # @macro auth_token
       #
       # @macro lazy_enumerator
+      #
+      # @note This request is supported for VMs deployed on Intel nodes only.
       #
       # @return [Enumerator<Disk>] The enumerator of the disk list.
       def disks
@@ -236,6 +257,8 @@ module OrkaAPI
       # @note Before you can use the attached disk, you need to restart the VM with a {#stop manual stop} of the VM,
       #   followed by a {#start manual start} VM. A software reboot from the OS will not trigger macOS to recognize
       #   the disk.
+      #
+      # @note This request is supported for VMs deployed on Intel nodes only.
       #
       # @param [Image, String] image The disk to attach to the VM.
       # @param [String] mount_point The mount point to attach the VM to.
@@ -270,6 +293,8 @@ module OrkaAPI
       #
       # @macro auth_token
       #
+      # @note This request is supported for VMs deployed on Intel nodes only.
+      #
       # @param [Integer] replicas The number of replicas to scale to.
       # @return [void]
       def scale(replicas)
@@ -291,6 +316,8 @@ module OrkaAPI
       #
       # @macro auth_token
       #
+      # @note This request is supported for VMs deployed on Intel nodes only.
+      #
       # @return [void]
       def unscale
         scale(1)
@@ -305,6 +332,8 @@ module OrkaAPI
       # @macro auth_token
       #
       # @macro vm_instance_state_note
+      #
+      # @note This request is supported for VMs deployed on Intel nodes only.
       #
       # @param [Node, String] destination_node The node to migrate the VM to.
       # @return [void]
@@ -329,6 +358,8 @@ module OrkaAPI
       #
       # @macro auth_token
       #
+      # @note This request is supported for VMs deployed on Intel nodes only.
+      #
       # @param [Node, String] destination_node The node to migrate the VM to.
       # @return [void]
       def clone(destination_node)
@@ -352,6 +383,8 @@ module OrkaAPI
       # @macro auth_token
       #
       # @note Saving VM state is restricted only to VMs that have GPU passthrough disabled.
+      #
+      # @note This request is supported for VMs deployed on Intel nodes only.
       #
       # @return [void]
       def save_state
@@ -413,6 +446,8 @@ module OrkaAPI
       #
       # @macro auth_token
       #
+      # @note This request is supported for Intel images only. Intel images have +.img+ extension.
+      #
       # @param [String] username The username of the VM user.
       # @param [String] password The password of the VM user.
       # @param [String] image_name The new name for the resized image.
@@ -448,6 +483,11 @@ module OrkaAPI
         @ssh_port = hash["ssh_port"].to_i
         @cpu_cores = hash["cpu"]
         @vcpu_count = hash["vcpu"]
+        @gpu_count = if hash["gpu"] == "N/A"
+          0
+        else
+          hash["gpu"].to_i
+        end
         @ram = hash["RAM"]
         @base_image = Image.lazy_prepare(name: hash["base_image"], conn: @conn)
         @config = VMConfiguration.lazy_prepare(name: hash["image"], conn: @conn)
@@ -463,6 +503,13 @@ module OrkaAPI
           )
         end
         @creation_time = DateTime.iso8601(hash["creation_timestamp"])
+        @tag = if hash["tag"].empty?
+          nil
+        else
+          hash["tag"]
+        end
+        @tag_required = hash["tag_required"]
+        # Replicas count also passed. Should always be 1 since we expand those.
       end
     end
   end

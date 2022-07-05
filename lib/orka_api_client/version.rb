@@ -7,6 +7,6 @@ module OrkaAPI
 
     # The Orka API version this gem supports. Support for other versions is not guaranteed, in particular older
     # versions.
-    API_VERSION = "1.7.0"
+    API_VERSION = "2.0.0"
   end
 end

@@ -187,7 +187,11 @@ module OrkaAPI
           }
         end
       rescue Faraday::ServerError => e
-        raise unless e.response[:body]&.include?("No VMs with that name are currently deployed")
+        no_deployments = [
+          "No VMs with that name are currently deployed",
+          "No deployments exists for this VM name",
+        ]
+        raise if no_deployments.none? { |msg| e.response[:body]&.include?(msg) }
       end
 
       # Remove all VM instances and the VM configuration.

@@ -9,4 +9,6 @@ excluded_modules:
 plugins:
   Sord::ParlourPlugin:
     exclude_untyped: yes
+    hide_private: yes
     rbi: yes
+    tags: []

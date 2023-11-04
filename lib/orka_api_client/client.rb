@@ -480,7 +480,7 @@ module OrkaAPI
     end
 
     # @!endgroup
-    # @!group Images
+    # @!group ISOs
 
     # Retrieve a list of the ISOs available in the local Orka storage.
     #

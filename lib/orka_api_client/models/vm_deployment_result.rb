@@ -44,6 +44,7 @@ module OrkaAPI
       # @api private
       # @param [Hash] hash
       # @param [Connection] conn
+      # @param [Boolean] admin
       def initialize(hash, conn:, admin: false)
         @ram = hash["ram"]
         @vcpu_count = hash["vcpu"].to_i

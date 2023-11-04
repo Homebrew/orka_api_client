@@ -200,7 +200,6 @@ module OrkaAPI
       end
 
       def deserialize(hash)
-        p hash
         @name = hash["orka_vm_name"]
         @owner = User.lazy_prepare(email: hash["owner"], conn: @conn)
         @base_image = Image.lazy_prepare(name: hash["orka_base_image"], conn: @conn)
@@ -234,7 +233,7 @@ module OrkaAPI
         @scheduler = if hash["scheduler"].nil?
           :default
         else
-          hash["scheduler"].gsub("-", "_").to_sym
+          hash["scheduler"].tr("-", "_").to_sym
         end
       end
     end

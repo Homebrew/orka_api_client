@@ -12,7 +12,6 @@ require_relative "models/remote_image"
 require_relative "models/iso"
 require_relative "models/remote_iso"
 require_relative "models/kube_account"
-require_relative "models/log_entry"
 require_relative "models/token_info"
 require_relative "models/password_requirements"
 
@@ -279,28 +278,33 @@ module OrkaAPI
     # @param [Models::Image, String] attached_disk An additional storage disk to attach to the VM on deployment. The
     #   option is supported for VMs deployed on Intel nodes only.
     # @param [Boolean] vnc_console By default, +true+. Enables or disables VNC for the VM configuration. You can
-    #   override on deployment of specific VMs. The option is supported for VMs deployed on Intel nodes only.
+    #   override on deployment of specific VMs.
     # @param [String] system_serial Assign an owned macOS system serial number to the VM configuration. The option is
     #   supported for VMs deployed on Intel nodes only.
     # @param [Boolean] io_boost By default, +false+ for VM configurations created before Orka 1.5. Default value for
     #   VM configurations created with Orka 1.5 or later depends on the cluster default. Enables or disables IO
     #   performance improvements for the VM configuration. The option is supported for VMs deployed on Intel nodes
     #   only.
+    # @param [Boolean] net_boost By default, +false+ for VM configurations created before Orka 2.3.0. Default value
+    #   for VM configurations created with Orka 2.3.0 or later depends on the cluster default. Enables or disables
+    #   network performance improvements for the VM configuration. The option is supported for VMs deployed on Intel
+    #   nodes only.
     # @param [Boolean] gpu_passthrough Enables or disables GPU passthrough for the VM. When enabled, +vnc_console+ is
-    #   automatically disabled. The option is supported for VMs deployed on Intel nodes only. GPU passthrough is an
-    #   experimental feature. GPU passthrough must first be enabled in your cluster.
+    #   automatically disabled. The option is supported for VMs deployed on Intel nodes only. GPU passthrough must
+    #   first be enabled in your cluster.
     # @param [String] tag When specified, the VM is preferred to be deployed to a node marked with this tag.
     # @param [Boolean] tag_required By default, +false+. When set to +true+, the VM is required to be deployed to a
     #   node marked with this tag.
     # @param [Symbol] scheduler Possible values are +:default+ and +:most-allocated+. By default, +:default+. When
     #   set to +:most-allocated+ VMs deployed from the VM configuration will be scheduled to nodes having most of
     #   their resources allocated. +:default+ keeps used vs free resources balanced between the nodes.
+    # @param [Numeric] memory
     # @return [Models::VMConfiguration] The lazily-loaded VM configuration.
     def create_vm_configuraton(name,
                                base_image:, snapshot_image:, cpu_cores:, vcpu_count:,
                                iso_image: nil, attached_disk: nil, vnc_console: nil,
-                               system_serial: nil, io_boost: nil, gpu_passthrough: nil,
-                               tag: nil, tag_required: nil, scheduler: nil)
+                               system_serial: nil, io_boost: nil, net_boost: nil, gpu_passthrough: nil,
+                               tag: nil, tag_required: nil, scheduler: nil, memory: nil)
       body = {
         orka_vm_name:    name,
         orka_base_image: base_image.is_a?(Models::Image) ? base_image.name : base_image,
@@ -312,10 +316,12 @@ module OrkaAPI
         vnc_console:     vnc_console,
         system_serial:   system_serial,
         io_boost:        io_boost,
+        net_boost:       net_boost,
         gpu_passthrough: gpu_passthrough,
         tag:             tag,
         tag_required:    tag_required,
         scheduler:       scheduler.to_s,
+        memory:          memory,
       }.compact
       @conn.post("resources/vm/create", body) do |r|
         r.options.context = {
@@ -488,6 +494,8 @@ module OrkaAPI
     #
     # @macro lazy_enumerator
     #
+    # @note All ISO requests are supported for Intel nodes only.
+    #
     # @return [Models::Enumerator<Models::ISO>] The enumerator of the ISO list.
     def isos
       Models::Enumerator.new do
@@ -506,6 +514,8 @@ module OrkaAPI
     #
     # @macro lazy_object
     #
+    # @note All ISO requests are supported for Intel nodes only.
+    #
     # @param [String] name The name of the ISO to fetch.
     # @return [Models::ISO] The lazily-loaded ISO.
     def iso(name)
@@ -520,6 +530,8 @@ module OrkaAPI
     # @macro auth_token
     #
     # @macro lazy_enumerator
+    #
+    # @note All ISO requests are supported for Intel nodes only.
     #
     # @return [Models::Enumerator<Models::RemoteISO>] The enumerator of the remote ISO list.
     def remote_isos
@@ -538,6 +550,8 @@ module OrkaAPI
     # Note that this method does not perform any network requests and does not verify if the name supplied actually
     # exists in the Orka remote repo.
     #
+    # @note All ISO requests are supported for Intel nodes only.
+    #
     # @param [String] name The name of the remote ISO.
     # @return [Models::RemoteISO] The remote ISO object.
     def remote_iso(name)
@@ -547,6 +561,8 @@ module OrkaAPI
     # Upload an ISO to the Orka environment.
     #
     # @macro auth_token
+    #
+    # @note All ISO requests are supported for Intel nodes only.
     #
     # @param [String, IO] file The string file path or an open IO object to the ISO to upload.
     # @param [String] name The name to give to this ISO. Defaults to the local filename.
@@ -658,34 +674,21 @@ module OrkaAPI
     #
     # @macro auth_license
     #
-    # @macro lazy_enumerator
-    #
-    # @param [Integer] limit Limit the amount of results returned to this amount.
-    # @return [Models::Enumerator<Models::LogEntry>] The enumerator of the log entries list.
-    def logs(limit: nil)
-      Models::Enumerator.new do
-        logs = @conn.post("logs/query") do |r|
-          r.params[:limit] = limit unless limit.nil?
+    # @param [Integer] limit Limit the amount of results returned to this quantity.
+    # @param [DateTime] start Limit the results to be log entries after this date.
+    # @param [String] query The LogQL query to filter by. Defaults to +{log_type="user_logs"}+.
+    # @return [Hash] A raw Grafana Loki query result payload. Parsing this is out-of-scope for this gem.
+    def logs(limit: nil, start: nil, query: nil)
+      @conn.post("logs/query") do |r|
+        r.params[:logs20] = "true"
+        r.params[:limit] = limit unless limit.nil?
+        r.params[:start] = start.rfc3339 unless start.nil?
+        r.params[:query] = query unless query.nil?
 
-          r.options.context = {
-            orka_auth_type: :license,
-          }
-        end.body["logs"]
-        logs.map { |hash| Models::LogEntry.new(hash) }
-      end
-    end
-
-    # Delete all logs for your Orka environment.
-    #
-    # @macro auth_token_and_license
-    #
-    # @return [void]
-    def delete_logs
-      @conn.delete("logs") do |r|
         r.options.context = {
-          orka_auth_type: [:license, :token],
+          orka_auth_type: :license,
         }
-      end
+      end.body
     end
 
     # @!endgroup
@@ -706,13 +709,34 @@ module OrkaAPI
       Models::TokenInfo.new(body, conn: @conn)
     end
 
+    # Retrieve detailed information about the health of your Orka environment.
+    #
+    # @macro auth_none
+    #
+    # @return [Hash] The status information on different components of your environment.
+    def environment_status
+      @conn.get("health-check").body["status"]
+    end
+
     # Retrieve the current API version of your Orka environment.
     #
     # @macro auth_none
     #
     # @return [String] The remote API version.
     def remote_api_version
-      @conn.get("health-check").body["api_version"]
+      @conn.get("version").body["api_version"]
+    end
+
+    # Retrieve the current version of the components in your Orka environment.
+    #
+    # @macro auth_none
+    #
+    # @return [Hash{String => String}] The version of each component.
+    def environment_component_versions
+      @conn.get("version", { all: "true" }).body.filter_map do |key, value|
+        new_key = key.delete_suffix("_version")
+        [new_key, value] if new_key != key
+      end.to_h
     end
 
     # Retrieve the current password requirements for creating an Orka user.
@@ -749,7 +773,42 @@ module OrkaAPI
     #
     # @return [Models::Image] The lazily-loaded default base image object.
     def default_base_image
-      Image.lazy_prepare(name: @conn.get("default-base-image").body["default_base_image"], conn: @conn)
+      Models::Image.lazy_prepare(name: @conn.get("default-base-image").body["default_base_image"], conn: @conn)
+    end
+
+    # Upload a custom TLS certificate and its private key in PEM format from your computer to your cluster. You can
+    # then access Orka via {https://orkadocs.macstadium.com/docs/custom-tls-certificate external custom domain}.
+    #
+    # The certificate and the key must meet the following requirements:
+    #
+    # * Both files are in PEM format.
+    # * The private key is not passphrase protected.
+    # * The certificate might be any of the following:
+    #   * A single domain certificate (e.g. +company.com+).
+    #   * Multi-domain certificate (e.g. +app1.company.com+, +app2.company.com+, and so on).
+    #   * Wildcard TLS certificate (e.g. +*.company.com+). If containing an asterisk, it must be a single asterisk
+    #     and must be in the leftmost position of the domain name. For example: You cannot use a +*.*.company.com+
+    #     certificate to work with Orka.
+    #   * A certificate chain (bundle) that contains your server, intermediates, and root certificates concatenated
+    #     (in the proper order) into one file.
+    # * The certificate must be a domain certificate issued by a certificate authority for a registered domain OR a
+    #   self-signed certificate for any domain
+    #   ({https://orkadocs.macstadium.com/docs/custom-tls-certificate#32-create-a-local-mapping for local use only}).
+    #
+    # @macro auth_token_and_license
+    #
+    # @param [String, IO] cert The string file path or an open IO object to the certificate.
+    # @param [String, IO] key The string file path or an open IO object to the key.
+    # @return [void]
+    def upload_tls_certificate(cert, key)
+      cert_part = Faraday::Multipart::FilePart.new(cert, "application/x-pem-file")
+      key_part = Faraday::Multipart::FilePart.new(key, "application/x-pem-file")
+      body = { certPath: cert_part, keyPath: key_part }
+      @conn.post("resources/cert/set", body, "Content-Type" => "multipart/form-data") do |r|
+        r.options.context = {
+          orka_auth_type: [:token, :license],
+        }
+      end
     end
 
     # @!endgroup

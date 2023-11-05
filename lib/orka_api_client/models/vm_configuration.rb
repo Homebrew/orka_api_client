@@ -42,6 +42,9 @@ module OrkaAPI
       # @return [Boolean] True if IO boost should be enabled for deployed VMs of this configuration.
       lazy_attr :io_boost?
 
+      # @return [Boolean] True if network boost should be enabled for deployed VMs of this configuration.
+      lazy_attr :net_boost?
+
       # @return [Boolean] True if deployed VMs of this configuration should use a prior saved state (created via
       #   {VMInstance#save_state}) rather than a clean base image.
       lazy_attr :use_saved_state?
@@ -60,6 +63,10 @@ module OrkaAPI
 
       # @return [Symbol] The scheduler mode chosen for VM deployment. Can be either +:default+ or +:most_allocated+.
       lazy_attr :scheduler
+
+      # @return [Numeric, nil] The amount of RAM this VM is assigned to take, in gigabytes. If not set, Orka will
+      #   automatically select a value when deploying.
+      lazy_attr :memory
 
       # @api private
       # @param [String] name
@@ -97,7 +104,9 @@ module OrkaAPI
       #   to accommodate the VM.
       # @param [Integer] replicas The scale at which to deploy the VM configuration. If not specified, defaults to
       #   +1+ (non-scaled). The option is supported for VMs deployed on Intel nodes only.
-      # @param [Array<PortMapping>] reserved_ports One or more port mappings that enable additional ports on your VM.
+      # @param [Array<PortMapping>] reserved_ports One or more port mappings that forward traffic to the specified
+      #   ports on the VM. The following ports and port ranges are reserved and cannot be used: +22+, +443+, +6443+,
+      #   +5000-5014+, +5999-6013+, +8822-8836+.
       # @param [Boolean] iso_install Set to +true+ if you want to use an ISO. The option is supported for VMs
       #   deployed on Intel nodes only.
       # @param [Models::ISO, String] iso_image An ISO to attach to the VM during deployment. If already set in the
@@ -113,9 +122,9 @@ module OrkaAPI
       # @param [Boolean] vnc_console Enables or disables VNC for the VM. If not set in the VM configuration or here,
       #   defaults to +true+. If already set in the respective VM configuration and not set here, Orka applies the
       #   setting from the VM configuration. You can also use this field to override the VNC setting specified in the
-      #   VM configuration. The option is supported for VMs deployed on Intel nodes only.
+      #   VM configuration.
       # @param [Hash{String => String}] vm_metadata Inject custom metadata to the VM. If not set, only the built-in
-      #   metadata is injected into the VM. The option is supported for VMs deployed on Intel nodes only.
+      #   metadata is injected into the VM.
       # @param [String] system_serial Assign an owned macOS system serial number to the VM. If already set in the
       #   respective VM configuration and not set here, Orka applies the setting from the VM configuration. The
       #   option is supported for VMs deployed on Intel nodes only.
@@ -123,8 +132,8 @@ module OrkaAPI
       #   configuration or here, defaults to +false+. If already set in the respective VM configuration and not set
       #   here, Orka applies the setting from the VM configuration. You can also use this field to override the GPU
       #   passthrough setting specified in the VM configuration. When enabled, +vnc_console+ is automatically
-      #   disabled. The option is supported for VMs deployed on Intel nodes only. GPU passthrough is an experimental
-      #   feature. GPU passthrough must first be enabled in your cluster.
+      #   disabled. The option is supported for VMs deployed on Intel nodes only. GPU passthrough must first be
+      #   enabled in your cluster.
       # @param [String] tag When specified, the VM is preferred to be deployed to a node marked with this tag.
       # @param [Boolean] tag_required By default, +false+. When set to +true+, the VM is required to be deployed to a
       #   node marked with this tag.
@@ -217,6 +226,7 @@ module OrkaAPI
         end
         @vnc_console = hash["vnc_console"]
         @io_boost = hash["io_boost"]
+        @net_boost = hash["net_boost"]
         @use_saved_state = hash["use_saved_state"]
         @gpu_passthrough = hash["gpu_passthrough"]
         @system_serial = if hash["system_serial"] == "N/A"
@@ -234,6 +244,11 @@ module OrkaAPI
           :default
         else
           hash["scheduler"].tr("-", "_").to_sym
+        end
+        @memory = if hash["memory"] == "automatic"
+          nil
+        else
+          hash["memory"]
         end
       end
     end

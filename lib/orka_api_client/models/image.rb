@@ -75,8 +75,6 @@ module OrkaAPI
       #
       # @macro auth_token
       #
-      # @note This request is supported for Intel images only. Intel images have +.img+ extension.
-      #
       # @param [String] new_name The name for the copy of this image.
       # @return [Image] The lazily-loaded image copy.
       def copy(new_name)

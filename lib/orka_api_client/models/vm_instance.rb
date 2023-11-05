@@ -66,6 +66,9 @@ module OrkaAPI
       # @return [Boolean] True if IO boost is enabled for this VM.
       attr_predicate :io_boost
 
+      # @return [Boolean] True if network boost is enabled for this VM.
+      attr_predicate :net_boost
+
       # @return [Boolean] True if this VM is using a prior saved state rather than a clean base image.
       attr_predicate :use_saved_state
 
@@ -276,105 +279,6 @@ module OrkaAPI
         end
       end
 
-      # Scale the VM to the specified number of replicas.
-      #
-      # When you are working with scaled VMs, the following limitations are in place:
-      #
-      # * Some operations are not available for scaled VMs (saving an image, committing changes to a base image,
-      #   cloning a VM, migrating a VM).
-      # * If you specify a node during deployment, scaling is limited to the resources of that node and will not
-      #   create new replicas on other nodes.
-      # * All replicas share the same ID.
-      # * When you scale down, you have no control over which replicas will be destroyed and which ones will be
-      #   preserved. This might result in loss of data.
-      # * When you scale up, newly deployed replicas use the base image of the original VM config. Changes from any
-      #   other running replicas are not applied to the new replicas.
-      # * Deleting a VM deletes all replicas.
-      #
-      # @macro auth_token
-      #
-      # @note This request is supported for VMs deployed on Intel nodes only.
-      #
-      # @param [Integer] replicas The number of replicas to scale to.
-      # @return [void]
-      def scale(replicas)
-        body = {
-          orka_vm_name: @id,
-          replicas:     replicas,
-        }.compact
-        @conn.patch("resources/vm/scale", body) do |r|
-          r.options.context = {
-            orka_auth_type: :token,
-          }
-        end
-      end
-
-      # Un-scale a scaled VM. This removes any additional replicas of the VM and leaves only one running copy.
-      #
-      # When you scale down, you have no control over which replicas will be destroyed and which one will be
-      # preserved. This might result in loss of data.
-      #
-      # @macro auth_token
-      #
-      # @note This request is supported for VMs deployed on Intel nodes only.
-      #
-      # @return [void]
-      def unscale
-        scale(1)
-      end
-
-      # Migrate the VM from its {#node current node} to another destination node. The destination node should be
-      # different from the source node.
-      #
-      # This operation changes the IP of the migrated VM and might change its assigned ports. This operation removes
-      # the VM from the source node.
-      #
-      # @macro auth_token
-      #
-      # @macro vm_instance_state_note
-      #
-      # @note This request is supported for VMs deployed on Intel nodes only.
-      #
-      # @param [Node, String] destination_node The node to migrate the VM to.
-      # @return [void]
-      def migrate(destination_node)
-        body = {
-          orka_vm_name:      @id,
-          current_node_name: @node.name,
-          new_nodes:         [destination_node.is_a?(Node) ? node.name : node],
-        }.compact
-        @conn.post("resources/vm/migrate", body) do |r|
-          r.options.context = {
-            orka_auth_type: :token,
-          }
-        end
-      end
-
-      # Clone the VM from its {#node current node} to another destination node. The destination node should be
-      # different from the source node.
-      #
-      # This operation retains the VM on the source node. The clone receives a new ID and might receive a new IP and
-      # assigned ports, based on the destination node.
-      #
-      # @macro auth_token
-      #
-      # @note This request is supported for VMs deployed on Intel nodes only.
-      #
-      # @param [Node, String] destination_node The node to migrate the VM to.
-      # @return [void]
-      def clone(destination_node)
-        body = {
-          orka_vm_name:      @id,
-          current_node_name: @node.name,
-          new_nodes:         [destination_node.is_a?(Node) ? node.name : node],
-        }.compact
-        @conn.post("resources/vm/clone", body) do |r|
-          r.options.context = {
-            orka_auth_type: :token,
-          }
-        end
-      end
-
       # Save the VM configuration state (disk and memory).
       #
       # If VM state is previously saved, it is overwritten. To overwrite the VM state, it must not be used by any
@@ -446,8 +350,6 @@ module OrkaAPI
       #
       # @macro auth_token
       #
-      # @note This request is supported for Intel images only. Intel images have +.img+ extension.
-      #
       # @param [String] username The username of the VM user.
       # @param [String] password The password of the VM user.
       # @param [String] image_name The new name for the resized image.
@@ -494,6 +396,7 @@ module OrkaAPI
         @configuration_template = hash["configuration_template"]
         @status = hash["vm_status"]
         @io_boost = hash["io_boost"]
+        @net_boost = hash["net_boost"]
         @use_saved_state = hash["use_saved_state"]
         @reserved_ports = hash["reserved_ports"].map do |mapping|
           ProtocolPortMapping.new(

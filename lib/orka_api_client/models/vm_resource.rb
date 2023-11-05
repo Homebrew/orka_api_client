@@ -40,6 +40,10 @@ module OrkaAPI
       #   +nil+ if {#deployed?} is +true+.
       lazy_attr :io_boost?
 
+      # @return [Boolean, nil] True if network boost is enabled, specified by the associated VM configuration. This is
+      #   +nil+ if {#deployed?} is +true+.
+      lazy_attr :net_boost?
+
       # @return [Boolean, nil] True if the saved state should be used rather than cleanly from the base image,
       #   specified by the associated VM configuration. This is +nil+ if {#deployed?} is +true+.
       lazy_attr :use_saved_state?
@@ -50,6 +54,10 @@ module OrkaAPI
 
       # @return [String, nil]
       lazy_attr :configuration_template
+
+      # @return [String, nil] The amount of RAM assigned for this VM, if it has been manually configured in advance of
+      #   deployment. This is always +nil+ if {#deployed?} is +true+.
+      lazy_attr :ram
 
       # @api private
       # @param [String] name
@@ -98,7 +106,9 @@ module OrkaAPI
       #   to accommodate the VM.
       # @param [Integer] replicas The scale at which to deploy the VM configuration. If not specified, defaults to
       #   +1+ (non-scaled). The option is supported for VMs deployed on Intel nodes only.
-      # @param [Array<PortMapping>] reserved_ports One or more port mappings that enable additional ports on your VM.
+      # @param [Array<PortMapping>] reserved_ports One or more port mappings that forward traffic to the specified
+      #   ports on the VM. The following ports and port ranges are reserved and cannot be used: +22+, +443+, +6443+,
+      #   +5000-5014+, +5999-6013+, +8822-8836+.
       # @param [Boolean] iso_install Set to +true+ if you want to use an ISO. The option is supported for VMs
       #   deployed on Intel nodes only.
       # @param [Models::ISO, String] iso_image An ISO to attach to the VM during deployment. If already set in the
@@ -114,9 +124,9 @@ module OrkaAPI
       # @param [Boolean] vnc_console Enables or disables VNC for the VM. If not set in the VM configuration or here,
       #   defaults to +true+. If already set in the respective VM configuration and not set here, Orka applies the
       #   setting from the VM configuration. You can also use this field to override the VNC setting specified in the
-      #   VM configuration. The option is supported for VMs deployed on Intel nodes only.
+      #   VM configuration.
       # @param [Hash{String => String}] vm_metadata Inject custom metadata to the VM. If not set, only the built-in
-      #   metadata is injected into the VM. The option is supported for VMs deployed on Intel nodes only.
+      #   metadata is injected into the VM.
       # @param [String] system_serial Assign an owned macOS system serial number to the VM. If already set in the
       #   respective VM configuration and not set here, Orka applies the setting from the VM configuration. The
       #   option is supported for VMs deployed on Intel nodes only.
@@ -124,8 +134,8 @@ module OrkaAPI
       #   configuration or here, defaults to +false+. If already set in the respective VM configuration and not set
       #   here, Orka applies the setting from the VM configuration. You can also use this field to override the GPU
       #   passthrough setting specified in the VM configuration. When enabled, +vnc_console+ is automatically
-      #   disabled. The option is supported for VMs deployed on Intel nodes only. GPU passthrough is an experimental
-      #   feature. GPU passthrough must first be enabled in your cluster.
+      #   disabled. The option is supported for VMs deployed on Intel nodes only. GPU passthrough must first be
+      #   enabled in your cluster.
       # @param [String] tag When specified, the VM is preferred to be deployed to a node marked with this tag.
       # @param [Boolean] tag_required By default, +false+. When set to +true+, the VM is required to be deployed to a
       #   node marked with this tag.
@@ -377,9 +387,11 @@ module OrkaAPI
           @base_image = Image.lazy_prepare(name: hash["base_image"], conn: @conn)
           @config = VMConfiguration.lazy_prepare(name: hash["image"], conn: @conn)
           @io_boost = hash["io_boost"]
+          @net_boost = hash["net_boost"]
           @use_saved_state = hash["use_saved_state"]
           @gpu_passthrough = hash["gpu_passthrough"]
           @configuration_template = hash["configuration_template"]
+          @ram = hash["RAM"]
         end
       end
     end

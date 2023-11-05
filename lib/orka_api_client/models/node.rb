@@ -42,6 +42,9 @@ module OrkaAPI
       # @return [String] The total amount of RAM on this node.
       lazy_attr :total_memory
 
+      # @return [String] The type of this node (WORKER, FOUNDATION, SANDBOX).
+      lazy_attr :type
+
       # @return [String] The state of this node.
       lazy_attr :state
 
@@ -157,8 +160,6 @@ module OrkaAPI
       #
       # @macro auth_token_and_license
       #
-      # @note This is a BETA feature.
-      #
       # @param [String, nil] group The user group to dedicate the node to.
       # @return [void]
       def dedicate_to_group(group)
@@ -175,14 +176,13 @@ module OrkaAPI
       #
       # @macro auth_token_and_license
       #
-      # @note This is a BETA feature.
-      #
       # @return [void]
       def remove_group_dedication
         dedicate_to_group(nil)
       end
 
-      # Mark a node with a custom tag. This allows when deploying a VM to target nodes having this custom tag.
+      # Assign the specified tag to the specified node (enable node affinity). When node affinity is configured,
+      # Orka first attempts to deploy to the specified node or group of nodes, before moving to any other nodes.
       #
       # @macro auth_token_and_license
       #
@@ -200,7 +200,7 @@ module OrkaAPI
         @tags << tag_name
       end
 
-      # Remove a custom tag from a certain node.
+      # Remove the specified tag from the specified node.
       #
       # @macro auth_token_and_license
       #
@@ -260,6 +260,7 @@ module OrkaAPI
         @available_memory = hash["available_memory"]
         @total_cpu_cores = hash["total_cpu"]
         @total_memory = hash["total_memory"]
+        @type = hash["node_type"]
         @state = hash["state"]
         @orka_group = hash["orka_group"]
         @tags = hash["orka_tags"]

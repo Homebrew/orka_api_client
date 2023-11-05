@@ -32,6 +32,9 @@ module OrkaAPI
       # @return [Boolean] True if IO boost is enabled for this VM.
       attr_predicate :io_boost
 
+      # @return [Boolean] True if network boost is enabled for this VM.
+      attr_predicate :io_boost
+
       # @return [Boolean] True if this VM is using a prior saved state rather than a clean base image.
       attr_predicate :use_saved_state
 
@@ -55,6 +58,7 @@ module OrkaAPI
         @resource = Models::VMResource.lazy_prepare(name: hash["vm_id"], conn: conn, admin: admin)
         # TODO: port_warnings?
         @io_boost = hash["io_boost"]
+        @net_boost = hash["net_boost"]
         @use_saved_state = if hash["use_saved_state"] == "N/A"
           false
         else

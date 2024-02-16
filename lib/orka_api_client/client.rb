@@ -301,10 +301,10 @@ module OrkaAPI
     # @param [Numeric] memory
     # @return [Models::VMConfiguration] The lazily-loaded VM configuration.
     def create_vm_configuration(name,
-                               base_image:, snapshot_image:, cpu_cores:, vcpu_count:,
-                               iso_image: nil, attached_disk: nil, vnc_console: nil,
-                               system_serial: nil, io_boost: nil, net_boost: nil, gpu_passthrough: nil,
-                               tag: nil, tag_required: nil, scheduler: nil, memory: nil)
+                                base_image:, snapshot_image:, cpu_cores:, vcpu_count:,
+                                iso_image: nil, attached_disk: nil, vnc_console: nil,
+                                system_serial: nil, io_boost: nil, net_boost: nil, gpu_passthrough: nil,
+                                tag: nil, tag_required: nil, scheduler: nil, memory: nil)
       body = {
         orka_vm_name:    name,
         orka_base_image: base_image.is_a?(Models::Image) ? base_image.name : base_image,

@@ -13,7 +13,7 @@ module OrkaAPI
         end
       end
 
-      # Forces this lazily-loaded enumerator to be fully loaded, peforming any necessary network operations.
+      # Forces this lazily-loaded enumerator to be fully loaded, performing any necessary network operations.
       #
       # @return [self]
       def eager

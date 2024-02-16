@@ -300,7 +300,7 @@ module OrkaAPI
     #   their resources allocated. +:default+ keeps used vs free resources balanced between the nodes.
     # @param [Numeric] memory
     # @return [Models::VMConfiguration] The lazily-loaded VM configuration.
-    def create_vm_configuraton(name,
+    def create_vm_configuration(name,
                                base_image:, snapshot_image:, cpu_cores:, vcpu_count:,
                                iso_image: nil, attached_disk: nil, vnc_console: nil,
                                system_serial: nil, io_boost: nil, net_boost: nil, gpu_passthrough: nil,

@@ -52,7 +52,7 @@ module OrkaAPI
       # @return [Boolean] True if GPU passthrough should be enabled for deployed VMs of this configuration.
       lazy_attr :gpu_passthrough?
 
-      # @return [String, nil] The custom system serial nubmer, if set.
+      # @return [String, nil] The custom system serial number, if set.
       lazy_attr :system_serial
 
       # @return [String, nil] The tag that VMs of this configuration should be deployed to, if any.

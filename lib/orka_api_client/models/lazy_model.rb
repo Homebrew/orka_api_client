@@ -27,7 +27,7 @@ module OrkaAPI
       end
       private_class_method :new
 
-      # Forces this lazily-loaded object to be fully loaded, peforming any necessary network operations.
+      # Forces this lazily-loaded object to be fully loaded, performing any necessary network operations.
       #
       # @return [self]
       def eager

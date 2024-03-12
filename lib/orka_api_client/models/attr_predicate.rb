@@ -12,8 +12,8 @@ module OrkaAPI
       #   def self.attr_predicate(*); end
       def attr_predicate(*attrs)
         attrs.each do |attr|
-          define_method "#{attr}?" do
-            instance_variable_get("@#{attr}")
+          define_method :"#{attr}?" do
+            instance_variable_get(:"@#{attr}")
           end
         end
       end

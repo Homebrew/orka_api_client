@@ -396,7 +396,11 @@ module OrkaAPI
         @configuration_template = hash["configuration_template"]
         @status = hash["vm_status"]
         @io_boost = hash["io_boost"]
-        @net_boost = hash["net_boost"]
+        @net_boost = if hash["net_boost"] == "N/A"
+          true # arm64
+        else
+          hash["net_boost"]
+        end
         @use_saved_state = hash["use_saved_state"]
         @reserved_ports = hash["reserved_ports"].map do |mapping|
           ProtocolPortMapping.new(
@@ -406,12 +410,12 @@ module OrkaAPI
           )
         end
         @creation_time = DateTime.iso8601(hash["creation_timestamp"])
-        @tag = if hash["tag"].empty?
+        @tag = if hash["tag"].nil? || hash["tag"].empty?
           nil
         else
           hash["tag"]
         end
-        @tag_required = hash["tag_required"]
+        @tag_required = !!hash["tag_required"]
         # Replicas count also passed. Should always be 1 since we expand those.
       end
     end

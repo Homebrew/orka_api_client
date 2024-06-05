@@ -85,7 +85,7 @@ GEM
     rubocop-rspec_rails (2.28.3)
       rubocop (~> 1.40)
     ruby-progressbar (1.13.0)
-    sorbet-runtime (0.5.11406)
+    sorbet-runtime (0.5.11409)
     sord (6.0.0)
       commander (~> 4.5)
       parlour (~> 5.0)

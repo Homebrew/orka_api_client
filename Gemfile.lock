@@ -8,7 +8,6 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
-    abbrev (0.1.2)
     ast (2.4.2)
     commander (4.6.0)
       highline (~> 2.0.0)
@@ -22,6 +21,7 @@ GEM
     highline (2.0.3)
     json (2.7.2)
     language_server-protocol (3.17.0.3)
+    logger (1.6.0)
     multipart-post (2.4.1)
     net-http (0.4.1)
       uri
@@ -37,8 +37,8 @@ GEM
     racc (1.8.0)
     rainbow (3.1.1)
     rake (13.2.1)
-    rbs (3.4.4)
-      abbrev
+    rbs (3.5.1)
+      logger
     regexp_parser (2.9.2)
     rexml (3.2.8)
       strscan (>= 3.0.9)

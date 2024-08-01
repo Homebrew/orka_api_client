@@ -12,7 +12,7 @@ GEM
     commander (4.6.0)
       highline (~> 2.0.0)
     diff-lcs (1.5.1)
-    faraday (2.10.0)
+    faraday (2.10.1)
       faraday-net_http (>= 2.0, < 3.2)
       logger
     faraday-multipart (1.0.4)

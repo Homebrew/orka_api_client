@@ -26,7 +26,7 @@ GEM
     multipart-post (2.4.1)
     net-http (0.4.1)
       uri
-    parallel (1.26.2)
+    parallel (1.26.3)
     parlour (5.0.0)
       commander (~> 4.5)
       parser

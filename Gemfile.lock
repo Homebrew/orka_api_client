@@ -22,7 +22,7 @@ GEM
     highline (2.0.3)
     json (2.7.2)
     language_server-protocol (3.17.0.3)
-    logger (1.6.0)
+    logger (1.6.1)
     multipart-post (2.4.1)
     net-http (0.4.1)
       uri

@@ -33,7 +33,7 @@ GEM
       parser
       rainbow (~> 3.0)
       sorbet-runtime (>= 0.5)
-    parser (3.3.5.1)
+    parser (3.3.6.0)
       ast (~> 2.4.1)
       racc
     racc (1.8.1)

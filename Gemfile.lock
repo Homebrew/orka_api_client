@@ -79,7 +79,7 @@ GEM
       lint_roller (~> 1.1)
       rubocop (~> 1.72, >= 1.72.1)
     ruby-progressbar (1.13.0)
-    sorbet-runtime (0.5.11826)
+    sorbet-runtime (0.5.11834)
     sord (6.0.0)
       commander (~> 4.5)
       parlour (~> 5.0)
